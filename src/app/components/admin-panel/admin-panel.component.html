@@ -1,0 +1,28 @@
+<section class="container mt-5 text-center">
+  @if (adminNombre) {
+    <h4 class="text-muted">Bienvenido, {{ adminNombre }}</h4>
+  }
+
+  <h2 class="mb-4">Panel de Administración</h2>
+
+  @if (!vista) {
+    <div class="mb-4 d-flex justify-content-center gap-3">
+      <button mat-raised-button color="primary" (click)="mostrarReservaciones()">
+        Ver Reservaciones
+      </button>
+      <button mat-raised-button color="accent" (click)="mostrarContacto()">
+        Ver Solicitudes de Contacto
+      </button>
+    </div>
+  }
+
+  @if (vista === 'reservaciones') {
+    <app-panel-reservaciones (cerrar)="cerrarVista()"></app-panel-reservaciones>
+  } @else if (vista === 'contacto') {
+    <app-panel-contacto (cerrar)="cerrarVista()"></app-panel-contacto>
+  } @else {
+    <div class="alert alert-info mt-4">
+      Selecciona una opción para ver la información.
+    </div>
+  }
+</section>
