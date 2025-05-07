@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { PanelReservacionesComponent } from '../panel-reservaciones/panel-reservaciones.component';
 import { PanelContactoComponent } from '../panel-contacto/panel-contacto.component';
+import { PanelComentariosComponent } from '../panel-comentarios/panel-comentarios.component';
 
 @Component({
   selector: 'app-admin-panel',
@@ -11,13 +12,14 @@ import { PanelContactoComponent } from '../panel-contacto/panel-contacto.compone
     CommonModule,
     MatButtonModule,
     PanelReservacionesComponent,
-    PanelContactoComponent
+    PanelContactoComponent,
+    PanelComentariosComponent
   ],
   templateUrl: './admin-panel.component.html',
   styleUrls: ['./admin-panel.component.css']
 })
 export class AdminPanelComponent implements OnInit {
-  vista: 'reservaciones' | 'contacto' | null = null;
+  vista: 'reservaciones' | 'contacto' | 'comentarios' | null = null;
   adminNombre: string = '';
 
   ngOnInit(): void {
@@ -31,6 +33,10 @@ export class AdminPanelComponent implements OnInit {
 
   mostrarContacto() {
     this.vista = 'contacto';
+  }
+
+  mostrarComentarios() {
+    this.vista = 'comentarios';
   }
 
   cerrarVista() {

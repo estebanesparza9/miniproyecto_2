@@ -1,39 +1,40 @@
 <h3 class="text-center mb-4">Reservaciones registradas</h3>
 
 <div class="container d-flex flex-column gap-4 align-items-center">
-  @if (reservacion) {
-    <mat-card class="w-75">
-      <mat-card-header>
-        <mat-card-title>Reservación de {{ reservacion.nombre }}</mat-card-title>
-        <mat-card-subtitle>{{ reservacion.hotel }} - {{ reservacion.tipoHabitacion }}</mat-card-subtitle>
-      </mat-card-header>
+  @if (reservaciones.length > 0) {
+    @for (r of reservaciones; track r; let i = $index) {
+      <mat-card class="w-75">
+        <mat-card-header>
+          <mat-card-title>Reservación de {{ r.nombre }}</mat-card-title>
+          <mat-card-subtitle>{{ r.hotel }} - {{ r.tipoHabitacion }}</mat-card-subtitle>
+        </mat-card-header>
 
-      <mat-card-content>
-        <p><strong>Fecha:</strong> {{ reservacion.fecha }}</p>
-        <p><strong>Método de pago:</strong> {{ reservacion.metodoPago }}</p>
+        <mat-card-content>
+          <p><strong>Fecha:</strong> {{ r.fecha }}</p>
+          <p><strong>Método de pago:</strong> {{ r.metodoPago }}</p>
 
-        <p><strong>Servicios seleccionados:</strong></p>
-        <ul>
-          @for (s of reservacion.serviciosSeleccionados; track $index) {
-            <li>{{ s }}</li>
-          }
-        </ul>
+          <p><strong>Servicios seleccionados:</strong></p>
+          <ul>
+            @for (s of r.serviciosSeleccionados; track s) {
+              <li>{{ s }}</li>
+            }
+          </ul>
 
-        <p><strong>Precio base:</strong> ${{ reservacion.precioBase }}</p>
-        <p><strong>Servicios:</strong> ${{ reservacion.precioServicios }}</p>
-        <p><strong>Total:</strong> <strong>${{ reservacion.precioTotal }}</strong></p>
-      </mat-card-content>
+          <p><strong>Precio base:</strong> ${{ r.precioBase }}</p>
+          <p><strong>Servicios:</strong> ${{ r.precioServicios }}</p>
+          <p><strong>Total:</strong> <strong>${{ r.precioTotal }}</strong></p>
+        </mat-card-content>
 
-      <mat-card-actions>
-        <button mat-raised-button color="warn" (click)="eliminarReservacion()">Eliminar</button>
-      </mat-card-actions>
-    </mat-card>
+        <mat-card-actions>
+          <button mat-raised-button color="warn" (click)="eliminarReservacion(i)">Eliminar</button>
+        </mat-card-actions>
+      </mat-card>
+    }
   } @else {
     <div class="alert alert-info">No hay reservaciones registradas.</div>
   }
 
-
-  <div class="text-center">
+  <div class="text-center mt-3">
     <button mat-button color="primary" (click)="cerrarPanel()">Cerrar</button>
   </div>
 </div>

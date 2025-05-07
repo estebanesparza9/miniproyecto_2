@@ -30,8 +30,18 @@ export class ContactoComponent {
         cancelButtonText: 'Cancelar'
       }).then(result => {
         if (result.isConfirmed) {
-          localStorage.setItem('contacto', JSON.stringify(this.contacto));
+          // Recuperar solicitudes anteriores, si existen
+          const contactosGuardados = localStorage.getItem('contactos');
+          const contactos: Contacto[] = contactosGuardados ? JSON.parse(contactosGuardados) : [];
+
+          
+          contactos.push({ ...this.contacto });
+
+          // Guardar el nuevo array actualizado
+          localStorage.setItem('contactos', JSON.stringify(contactos));
+
           Swal.fire('¡Solicitud enviada!', 'Te contactaremos pronto.', 'success');
+
           formulario.reset();
         }
       });

@@ -14,14 +14,14 @@ import Swal from 'sweetalert2';
 })
 export class PanelReservacionesComponent implements OnInit {
   @Output() cerrar = new EventEmitter<void>();
-  reservacion: Reservacion | null = null;
+  reservaciones: Reservacion[] = [];
 
   ngOnInit(): void {
-    const data = localStorage.getItem('reservacion');
-    this.reservacion = data ? JSON.parse(data) : null;
+    const data = localStorage.getItem('reservaciones');
+    this.reservaciones = data ? JSON.parse(data) : [];
   }
 
-  eliminarReservacion() {
+  eliminarReservacion(index: number) {
     Swal.fire({
       title: '¿Eliminar reservación?',
       text: 'Esta acción no se puede deshacer.',
@@ -31,8 +31,8 @@ export class PanelReservacionesComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then(result => {
       if (result.isConfirmed) {
-        localStorage.removeItem('reservacion');
-        this.reservacion = null;
+        this.reservaciones.splice(index, 1);
+        localStorage.setItem('reservaciones', JSON.stringify(this.reservaciones));
         Swal.fire('Eliminado', 'La reservación fue eliminada.', 'success');
       }
     });

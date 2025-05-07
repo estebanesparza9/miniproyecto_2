@@ -11,19 +11,44 @@ import { CommonModule } from '@angular/common';
 import { HotelService } from '../../services/hotel.service';
 import { Hotel } from '../../models/hotel';
 import { Reservacion } from '../../models/reservacion';
+
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
+
 import Swal from 'sweetalert2';
 
-// Validador personalizado
+// Validador personalizado para nombre completo
 function nombreCompletoValidator(control: FormControl) {
   const valor = control.value || '';
   const palabras = valor.trim().split(/\s+/);
   return palabras.length >= 2 ? null : { nombreCompleto: true };
+}
+
+// Validador personalizado para fecha
+function fechaReservacionValidator(min: Date, max: Date) {
+  return (control: FormControl) => {
+    const valor = control.value;
+    if (!valor) return null;
+
+    const seleccionada = new Date(valor);
+
+    if (seleccionada < min) {
+      return { fechaInvalida: 'Debe ser al menos con 15 días de anticipación.' };
+    }
+
+    if (seleccionada > max) {
+      return { fechaInvalida: 'La fecha no puede exceder 6 meses desde hoy.' };
+    }
+
+    return null;
+  };
 }
 
 @Component({
@@ -37,7 +62,10 @@ function nombreCompletoValidator(control: FormControl) {
     MatSelectModule,
     MatRadioModule,
     MatCheckboxModule,
-    MatButtonModule
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatIconModule
   ],
   templateUrl: './reservacion.component.html',
   styleUrls: ['./reservacion.component.css']
@@ -47,7 +75,8 @@ export class ReservacionComponent implements OnInit {
   reservacionForm!: FormGroup;
   precioServicios = 0;
   precioTotal = 0;
-  hoy: string = '';
+  minDate: Date = new Date();
+  maxDate: Date = new Date();
   tiposHabitacion: string[] = ['Individual', 'Doble', 'Suite', 'Familiar'];
 
   constructor(
@@ -58,6 +87,9 @@ export class ReservacionComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.minDate.setDate(this.minDate.getDate() + 15);
+    this.maxDate.setMonth(this.maxDate.getMonth() + 6);
+
     const id = this.route.snapshot.paramMap.get('id');
     this.hotelService.obtenerHoteles().subscribe(hoteles => {
       const encontrado = hoteles.find(h => h.id === id);
@@ -69,15 +101,12 @@ export class ReservacionComponent implements OnInit {
   }
 
   inicializarFormulario() {
-    const today = new Date();
-    this.hoy = today.toISOString().split('T')[0];
-
     this.reservacionForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3), nombreCompletoValidator]],
       tipoHabitacion: ['', Validators.required],
       serviciosSeleccionados: this.fb.group({}),
       metodoPago: ['', Validators.required],
-      fecha: ['', Validators.required]
+      fecha: ['', [Validators.required, fechaReservacionValidator(this.minDate, this.maxDate)]]
     });
 
     this.hotel.servicios.forEach(servicio => {
@@ -130,15 +159,20 @@ export class ReservacionComponent implements OnInit {
             precioTotal: this.precioTotal
           };
 
-          localStorage.setItem('reservacion', JSON.stringify(nuevaReservacion));
+          const reservacionesGuardadas = localStorage.getItem('reservaciones');
+          const reservaciones: Reservacion[] = reservacionesGuardadas
+            ? JSON.parse(reservacionesGuardadas)
+            : [];
 
-          Swal.fire('¡Reservación completada!', 'Gracias por tu preferencia.', 'success')
-            .then(() => {
-              this.reservacionForm.reset();
-              this.precioServicios = 0;
-              this.precioTotal = 0;
-              this.router.navigate(['/hoteles']);
-            });
+          reservaciones.push(nuevaReservacion);
+          localStorage.setItem('reservaciones', JSON.stringify(reservaciones));
+
+          Swal.fire('¡Reservación completada!', 'Gracias por tu preferencia.', 'success').then(() => {
+            this.reservacionForm.reset();
+            this.precioServicios = 0;
+            this.precioTotal = 0;
+            this.router.navigate(['/hoteles']);
+          });
         }
       });
     } else {
@@ -146,5 +180,3 @@ export class ReservacionComponent implements OnInit {
     }
   }
 }
-
-

@@ -14,16 +14,16 @@ import { Contacto } from '../../models/contacto';
 })
 export class PanelContactoComponent implements OnInit {
   @Output() cerrar = new EventEmitter<void>();
-  contacto: Contacto | null = null;
+  contactos: Contacto[] = [];
 
   ngOnInit(): void {
-    const data = localStorage.getItem('contacto');
-    this.contacto = data ? JSON.parse(data) : null;
+    const data = localStorage.getItem('contactos');
+    this.contactos = data ? JSON.parse(data) : [];
   }
 
-  eliminarContacto() {
+  eliminarContacto(index: number) {
     Swal.fire({
-      title: '¿Eliminar solicitud de contacto?',
+      title: '¿Eliminar esta solicitud?',
       text: 'Esta acción no se puede deshacer.',
       icon: 'warning',
       showCancelButton: true,
@@ -31,8 +31,8 @@ export class PanelContactoComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then(result => {
       if (result.isConfirmed) {
-        localStorage.removeItem('contacto');
-        this.contacto = null;
+        this.contactos.splice(index, 1);
+        localStorage.setItem('contactos', JSON.stringify(this.contactos));
         Swal.fire('Eliminado', 'La solicitud fue eliminada.', 'success');
       }
     });
