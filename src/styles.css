@@ -7,6 +7,8 @@
     --azuloscuro:#3751a5;
     --azulgris:#3d6c7a;
     --blanco: whitesmoke;
+
+    --special:"Comfortaa", sans-serif;
 }
 html, body { 
     height: 100%; 
