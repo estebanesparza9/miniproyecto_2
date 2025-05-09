@@ -9,10 +9,13 @@
     --blanco: whitesmoke;
 
     --special:"Comfortaa", sans-serif;
+    --text: "Helvetica Neue", sans-serif;
+    --other: "Franklin Gothic", sans-serif;
 }
 html, body { 
     height: 100%; 
 }
 body { 
-    margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; 
+    margin: 0; 
+    font-family: Roboto, "Helvetica Neue", sans-serif; 
 }

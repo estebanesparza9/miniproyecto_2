@@ -1,0 +1,11 @@
+p{
+    font-family: var(--text);
+}
+
+h5{
+    font-family: var(--special);
+}
+
+.container ~ div{
+    font-family: var(--text);
+}

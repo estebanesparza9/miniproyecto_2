@@ -6,3 +6,10 @@ header {
     border-top: solid 2px !important;
   }
   
+h1{
+  font-family: var(--special);
+}
+
+p{
+  font-family: var(--text);
+}

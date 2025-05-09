@@ -1,0 +1,13 @@
+.navbar-brand{
+    font-family: var(--special);
+    font-weight: 700;
+}
+
+nav{
+    background-color: var(--azuloscuro);
+    border-color: var(--amarillooscuro);
+}
+
+.nav-link{
+    font-family: var(--other);
+}
