@@ -22,29 +22,36 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 
-import Swal from 'sweetalert2';
 
-// Validador personalizado para nombre completo
+import Swal from 'sweetalert2';
+import { ValidatorsReserv } from './validators';
+
 function nombreCompletoValidator(control: FormControl) {
   const valor = control.value || '';
   const palabras = valor.trim().split(/\s+/);
   return palabras.length >= 2 ? null : { nombreCompleto: true };
 }
 
-// Validador personalizado para fecha
-function fechaReservacionValidator(min: Date, max: Date) {
-  return (control: FormControl) => {
-    const valor = control.value;
-    if (!valor) return null;
+function rangoFechaValidator(min: Date, max: Date) {
+  return (group: FormGroup) => {
+    const inicio = group.get('fechaInicio')?.value;
+    const fin = group.get('fechaFin')?.value;
 
-    const seleccionada = new Date(valor);
+    if (!inicio || !fin) return null;
 
-    if (seleccionada < min) {
-      return { fechaInvalida: 'Debe ser al menos con 15 días de anticipación.' };
+    const fechaInicio = new Date(inicio);
+    const fechaFin = new Date(fin);
+
+    if (fechaInicio < min) {
+      return { fechaInvalida: 'La fecha de inicio debe ser al menos con 15 días de anticipación.' };
     }
 
-    if (seleccionada > max) {
-      return { fechaInvalida: 'La fecha no puede exceder 6 meses desde hoy.' };
+    if (fechaFin > max) {
+      return { fechaInvalida: 'La fecha de fin no puede exceder 6 meses desde hoy.' };
+    }
+
+    if (fechaFin < fechaInicio) {
+      return { fechaInvalida: 'La fecha final no puede ser anterior a la inicial.' };
     }
 
     return null;
@@ -75,6 +82,7 @@ export class ReservacionComponent implements OnInit {
   reservacionForm!: FormGroup;
   precioServicios = 0;
   precioTotal = 0;
+  precioBase = 0;
   minDate: Date = new Date();
   maxDate: Date = new Date();
   tiposHabitacion: string[] = ['Individual', 'Doble', 'Suite', 'Familiar'];
@@ -102,23 +110,34 @@ export class ReservacionComponent implements OnInit {
 
   inicializarFormulario() {
     this.reservacionForm = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(3), nombreCompletoValidator]],
+      nombre: ['', [
+        Validators.required,
+        Validators.minLength(3),
+        ValidatorsReserv.nombreCompletoValidator()
+      ]],
       tipoHabitacion: ['', Validators.required],
       serviciosSeleccionados: this.fb.group({}),
       metodoPago: ['', Validators.required],
-      fecha: ['', [Validators.required, fechaReservacionValidator(this.minDate, this.maxDate)]]
+      fechaInicio: ['', Validators.required],
+      fechaFin: ['', Validators.required]
+    }, {
+      validators: ValidatorsReserv.rangoFechaValidator(this.minDate, this.maxDate)
     });
+    
 
     this.hotel.servicios.forEach(servicio => {
       const control = new FormControl(false);
       (this.reservacionForm.get('serviciosSeleccionados') as FormGroup).addControl(servicio, control);
     });
 
+    this.reservacionForm.get('fechaInicio')?.valueChanges.subscribe(() => this.calcularTotal());
+    this.reservacionForm.get('fechaFin')?.valueChanges.subscribe(() => this.calcularTotal());
+
     this.calcularTotal();
   }
 
   calcularTotal() {
-    if (!this.hotel || !this.hotel.precioServicio || !this.reservacionForm) {
+    if (!this.hotel || !this.hotel.precio || !this.hotel.precioServicio || !this.reservacionForm) {
       this.precioServicios = 0;
       this.precioTotal = 0;
       return;
@@ -126,7 +145,18 @@ export class ReservacionComponent implements OnInit {
 
     const seleccionados = this.obtenerServiciosSeleccionados();
     this.precioServicios = seleccionados.length * this.hotel.precioServicio;
-    this.precioTotal = this.hotel.precio + this.precioServicios;
+
+    const fechaInicio = new Date(this.reservacionForm.get('fechaInicio')?.value);
+    const fechaFin = new Date(this.reservacionForm.get('fechaFin')?.value);
+
+    let dias = 1;
+    if (fechaInicio && fechaFin && fechaFin >= fechaInicio) {
+      const diff = fechaFin.getTime() - fechaInicio.getTime();
+      dias = Math.ceil(diff / (1000 * 60 * 60 * 24)) || 1;
+    }
+
+    this.precioBase = dias * this.hotel.precio;
+    this.precioTotal = this.precioBase + this.precioServicios;
   }
 
   obtenerServiciosSeleccionados(): string[] {
@@ -152,9 +182,10 @@ export class ReservacionComponent implements OnInit {
             tipoHabitacion: datos.tipoHabitacion,
             serviciosSeleccionados: this.obtenerServiciosSeleccionados(),
             metodoPago: datos.metodoPago,
-            fecha: datos.fecha,
+            fechaInicio: datos.fechaInicio,
+            fechaFin: datos.fechaFin,
             hotel: this.hotel.nombre,
-            precioBase: this.hotel.precio,
+            precioBase: this.precioBase,
             precioServicios: this.precioServicios,
             precioTotal: this.precioTotal
           };
@@ -170,6 +201,7 @@ export class ReservacionComponent implements OnInit {
           Swal.fire('¡Reservación completada!', 'Gracias por tu preferencia.', 'success').then(() => {
             this.reservacionForm.reset();
             this.precioServicios = 0;
+            this.precioBase = 0;
             this.precioTotal = 0;
             this.router.navigate(['/hoteles']);
           });

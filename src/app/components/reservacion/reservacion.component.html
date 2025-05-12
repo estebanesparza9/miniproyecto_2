@@ -3,7 +3,7 @@
 
   <form [formGroup]="reservacionForm" (ngSubmit)="enviar()">
 
-    <!-- Nombre -->
+
     <mat-form-field appearance="fill" class="w-100 mb-3">
       <mat-label>Nombre completo</mat-label>
       <input matInput formControlName="nombre" required>
@@ -12,15 +12,15 @@
           <mat-error>El nombre es obligatorio.</mat-error>
         }
         @if (reservacionForm.get('nombre')?.hasError('minlength')) {
-          <mat-error>El nombre debe tener al menos 3 caracteres.</mat-error>
+          <mat-error>Debe tener al menos 3 caracteres.</mat-error>
         }
         @if (reservacionForm.get('nombre')?.hasError('nombreCompleto')) {
-          <mat-error>Escribe al menos nombre y apellido.</mat-error>
+          <mat-error>{{ reservacionForm.get('nombre')?.getError('nombreCompleto') }}</mat-error>
         }
       }
     </mat-form-field>
+    
 
-    <!-- Tipo de habitación -->
     <mat-form-field appearance="fill" class="w-100 mb-3">
       <mat-label>Tipo de habitación</mat-label>
       <mat-select formControlName="tipoHabitacion" required>
@@ -35,9 +35,8 @@
       }
     </mat-form-field>
 
-    <!-- Servicios adicionales -->
     <div class="mb-3">
-      <label class="form-label"><strong>Servicios adicionales disponibles</strong> ({{ hotel.precioServicio }} cada uno):</label>
+      <label><strong>Servicios adicionales ({{ hotel.precioServicio }} cada uno):</strong></label>
       <div formGroupName="serviciosSeleccionados">
         @for (servicio of hotel.servicios; track $index) {
           <mat-checkbox [formControlName]="servicio" (change)="calcularTotal()">
@@ -47,9 +46,8 @@
       </div>
     </div>
 
-    <!-- Método de pago -->
     <div class="mb-3">
-      <label class="form-label"><strong>Método de pago:</strong></label><br>
+      <label><strong>Método de pago:</strong></label><br>
       <mat-radio-group formControlName="metodoPago">
         <mat-radio-button value="Tarjeta">Tarjeta</mat-radio-button>
         <mat-radio-button value="Efectivo" class="ms-3">Efectivo</mat-radio-button>
@@ -61,36 +59,33 @@
       }
     </div>
 
+    <!-- Fechas -->
     <mat-form-field appearance="fill" class="w-100 mb-3">
-      <mat-label>Fecha de reservación</mat-label>
-      <input matInput 
-             [matDatepicker]="picker" 
-             [min]="minDate" 
-             [max]="maxDate"
-             formControlName="fecha">
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker></mat-datepicker>
-    
-      @if (reservacionForm.get('fecha')?.touched || reservacionForm.get('fecha')?.dirty) {
-        @if (reservacionForm.get('fecha')?.hasError('required')) {
-          <mat-error>La fecha es obligatoria.</mat-error>
-        }
-        @if (reservacionForm.get('fecha')?.errors?.['fechaInvalida']) {
-          <mat-error>{{ reservacionForm.get('fecha')?.errors?.['fechaInvalida'] }}</mat-error>
-        }
-      }
+      <mat-label>Fecha de inicio</mat-label>
+      <input matInput [matDatepicker]="inicioPicker" formControlName="fechaInicio" [min]="minDate" [max]="maxDate">
+      <mat-datepicker-toggle matSuffix [for]="inicioPicker"></mat-datepicker-toggle>
+      <mat-datepicker #inicioPicker></mat-datepicker>
     </mat-form-field>
-    
-    
 
-    <!-- Precios -->
+    <mat-form-field appearance="fill" class="w-100 mb-3">
+      <mat-label>Fecha de fin</mat-label>
+      <input matInput [matDatepicker]="finPicker" formControlName="fechaFin" [min]="minDate" [max]="maxDate">
+      <mat-datepicker-toggle matSuffix [for]="finPicker"></mat-datepicker-toggle>
+      <mat-datepicker #finPicker></mat-datepicker>
+    </mat-form-field>
+
+    @if (reservacionForm.errors?.['fechaInvalida']) {
+      <mat-error class="d-block mb-3 text-danger">
+        {{ reservacionForm.errors?.['fechaInvalida'] }}
+      </mat-error>
+    }
+
     <div class="mt-3">
-      <p><strong>Precio base:</strong> ${{ hotel.precio }}</p>
+      <p><strong>Precio base ({{ hotel.precio }} x noche):</strong> ${{ precioBase }}</p>
       <p><strong>Servicios seleccionados:</strong> ${{ precioServicios }}</p>
       <p><strong>Total a pagar:</strong> ${{ precioTotal }}</p>
     </div>
 
-    <!-- Botón -->
     <button mat-raised-button color="primary" class="w-100 mt-3" type="submit" [disabled]="reservacionForm.invalid">
       Confirmar reservación
     </button>
