@@ -8,6 +8,7 @@
 }
 
 .navbar-brand {
+  gap: 20px;
   font-size: 1.8rem;
   font-weight: 700;
   letter-spacing: 2px;
@@ -16,10 +17,11 @@
   transition: color 0.3s ease;
 
   display: flex;
+  align-items: center;
 }
 
 .navbar-brand img{
-  margin-left: 1rem;
+  margin-left: 0.5rem;
 }
 
 .navbar-brand:hover {
@@ -35,6 +37,8 @@
 }
 
 .navbar-nav .nav-item .nav-link {
+  display: flex;
+  align-items: center;
   color: var(--blanco);
   font-size: 1.1rem;
   font-weight: 500;
