@@ -14,6 +14,12 @@
   text-transform: uppercase;
   color: var(--blanco) ;
   transition: color 0.3s ease;
+
+  display: flex;
+}
+
+.navbar-brand img{
+  margin-left: 1rem;
 }
 
 .navbar-brand:hover {
