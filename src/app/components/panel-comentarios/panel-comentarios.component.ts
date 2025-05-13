@@ -7,6 +7,7 @@ import { TESTIMONIOS_PREDETERMINADOS } from '../../models/testimonios';
 import { OracionPipe } from '../../pipes/oracion.pipe';
 import { EstrellasPipe } from '../../pipes/estrellas.pipe';
 import { CapitalizarPipe } from '../../pipes/capitalizar.pipe';
+import Swal from 'sweetalert2'; 
 
 @Component({
   selector: 'app-panel-comentarios',
@@ -27,9 +28,22 @@ export class PanelComentariosComponent implements OnInit {
   }
 
   eliminarComentario(index: number) {
-    this.comentarios.splice(index, 1);
-    localStorage.setItem('testimonios', JSON.stringify(this.comentarios));
+    Swal.fire({
+      title: '¿Eliminar este comentario?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.comentarios.splice(index, 1);
+        localStorage.setItem('testimonios', JSON.stringify(this.comentarios));
+        Swal.fire('Eliminado', 'El comentario fue eliminado.', 'success');
+      }
+    });
   }
+
 
   cerrarPanel() {
     this.cerrar.emit();
