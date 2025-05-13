@@ -93,4 +93,28 @@ p, li {
   color: var(--azuloscuro);
 }
 
+.text-center a {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--azulgris);
+  text-decoration: none;
+  transition: color 0.3s, transform 0.2s;
+}
 
+.text-center a:hover {
+  color: #8e44ad;
+  transform: translateY(-2px);
+}
+
+.text-center a:active {
+  color: #34495e;
+}
+
+.text-center i {
+  margin-right: 0.5rem;
+  transition: transform 0.2s;
+}
+
+.text-center a:hover i {
+  transform: rotate(10deg) scale(1.1);
+}
